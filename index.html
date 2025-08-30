@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <title>Mini Game</title>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
+  <style>body{margin:0;background:#222;}</style>
+</head>
+<body>
+<script>
+const config = {
+  type: Phaser.AUTO, width: 640, height: 360, backgroundColor: '#333',
+  physics: { default: 'arcade' },
+  scene: { preload, create, update }
+};
+let player;
+function preload(){
+  this.load.image('player','https://labs.phaser.io/assets/sprites/phaser-dude.png');
+}
+function create(){
+  player = this.physics.add.image(320,180,'player');
+  this.input.on('pointerdown', p => { player.setPosition(p.x,p.y); });
+}
+function update(){}
+new Phaser.Game(config);
+</script>
+</body>
+</html>
