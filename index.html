@@ -1,28 +1,85 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8" />
-  <title>Mini Game</title>
-  <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
-  <style>body{margin:0;background:#222;}</style>
+  <meta charset="utf-8">
+  <title>確率レベルアップボタン</title>
+  <style>
+    body { background:#222; color:#fff; display:flex; justify-content:center; align-items:center; height:100vh; flex-direction:column; font-family:sans-serif; }
+    button { padding:1em 2em; font-size:1.2em; border:none; border-radius:8px; cursor:pointer; }
+    #result { margin-top:20px; font-size:1.5em; }
+    #score { margin-top:10px; font-size:1.2em; color:yellow; }
+    #timer { margin-top:5px; font-size:1.2em; color:orange; }
+    #level { margin-top:5px; font-size:1.2em; color:aqua; }
+  </style>
 </head>
 <body>
-<script>
-const config = {
-  type: Phaser.AUTO, width: 640, height: 360, backgroundColor: '#333',
-  physics: { default: 'arcade' },
-  scene: { preload, create, update }
-};
-let player;
-function preload(){
-  this.load.image('player','https://labs.phaser.io/assets/sprites/phaser-dude.png');
-}
-function create(){
-  player = this.physics.add.image(320,180,'player');
-  this.input.on('pointerdown', p => { player.setPosition(p.x,p.y); });
-}
-function update(){}
-new Phaser.Game(config);
-</script>
+  <h1>確率レベルアップボタン</h1>
+  <button id="tryBtn">押す！（成功確率: 1/2）</button>
+  <div id="result"></div>
+  <div id="score">スコア: 0</div>
+  <div id="level">レベル: 1</div>
+  <div id="timer"></div>
+
+  <script>
+    const btn = document.getElementById("tryBtn");
+    const result = document.getElementById("result");
+    const scoreEl = document.getElementById("score");
+    const timerEl = document.getElementById("timer");
+    const levelEl = document.getElementById("level");
+
+    let score = 0;
+    let canClick = true;
+    let countdown = 0;
+    let countdownInterval;
+
+    let level = 1;
+    let successProb = 0.5; // 最初は1/2
+
+    function updateButton() {
+      btn.textContent = `押す！（成功確率: 1/${1/successProb})`;
+      levelEl.textContent = `レベル: ${level}`;
+    }
+
+    updateButton();
+
+    btn.addEventListener("click", () => {
+      if(!canClick){
+        result.textContent = "⌛ まだ待って！";
+        result.style.color = "orange";
+        return;
+      }
+
+      // 成功判定
+      const success = Math.random() < successProb;
+      if(success){
+        score++;
+        level++;
+        successProb /= 2; // 成功確率を半分に
+        result.textContent = "🎉 成功！レベルアップ！";
+        result.style.color = "lime";
+      } else {
+        result.textContent = "💀 失敗...";
+        result.style.color = "red";
+      }
+      scoreEl.textContent = "スコア: " + score;
+      updateButton();
+
+      // クールダウン開始
+      canClick = false;
+      countdown = 10;
+      timerEl.textContent = `次のボタンまで: ${countdown}s`;
+
+      countdownInterval = setInterval(() => {
+        countdown--;
+        if(countdown > 0){
+          timerEl.textContent = `次のボタンまで: ${countdown}s`;
+        } else {
+          clearInterval(countdownInterval);
+          timerEl.textContent = "";
+          canClick = true;
+        }
+      }, 1000);
+    });
+  </script>
 </body>
 </html>
